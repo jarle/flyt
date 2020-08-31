@@ -1,0 +1,28 @@
+name: flyt
+description: A speed reader app
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  file_picker: ^1.13.0+1
+  epub: ^2.1.0
+  sqfentity: ^1.2.3
+  sqfentity_gen: ^1.2.3
+  uuid: ^2.2.0
+  xml: ^3.7.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  build_runner: ^1.6.5
+  build_verify: ^1.1.0
+
+flutter:
+  uses-material-design: true
