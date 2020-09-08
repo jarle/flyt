@@ -78,35 +78,41 @@ class _SpeedReaderViewState extends State<SpeedReaderView> {
   Widget body() {
     return Padding(
         padding: EdgeInsets.only(left: 40, right: 40),
-        child: GestureDetector(
-          child: Column(
-            children: [
-              Visibility(
-                visible: !_isReading,
-                child: Expanded(
-                    flex: 2,
+        child: Column(
+          children: [
+            Visibility(
+              visible: !_isReading,
+              child: Expanded(
+                flex: 2,
+                child: GestureDetector(
                     child: Text(_bookReader.above(),
                         textAlign: TextAlign.justify,
-                        overflow: TextOverflow.fade)),
+                        overflow: TextOverflow.fade),
+                    onTap: () {
+                      skip(-100);
+                    }),
               ),
-              Expanded(
-                  child: Center(
-                child: Text(
-                  _currentWord,
-                  style: TextStyle(fontSize: 35),
-                ),
-              )),
-              Visibility(
-                  visible: !_isReading,
-                  child: Expanded(
-                    flex: 2,
-                    child: Text(_bookReader.below(),
-                        overflow: TextOverflow.fade,
-                        textAlign: TextAlign.justify),
-                  ))
-            ],
-          ),
-          onTap: _toggleReading,
+            ),
+            Expanded(
+                child: Center(
+              child: Text(
+                _currentWord,
+                style: TextStyle(fontSize: 35),
+              ),
+            )),
+            Visibility(
+                visible: !_isReading,
+                child: Expanded(
+                  flex: 2,
+                  child: GestureDetector(
+                      child: Text(_bookReader.below(),
+                          overflow: TextOverflow.fade,
+                          textAlign: TextAlign.justify),
+                      onTap: () {
+                        skip(100);
+                      }),
+                ))
+          ],
         ));
   }
 
@@ -152,5 +158,12 @@ class _SpeedReaderViewState extends State<SpeedReaderView> {
     super.dispose();
     timer?.cancel();
     await pauseReading();
+  }
+
+  skip(int wordsToSkip) {
+    this._bookReader.skip(wordsToSkip);
+    setState(() {
+      this._currentWord = this._bookReader.next();
+    });
   }
 }

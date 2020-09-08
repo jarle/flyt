@@ -28,4 +28,8 @@ class BookReader {
   void forward() {
     cursorPosition++;
   }
+
+  void skip(int wordsToSkip) {
+    cursorPosition = cursorPosition + wordsToSkip; //TODO: test
+  }
 }

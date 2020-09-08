@@ -71,6 +71,14 @@ class BookReaderService {
     }
   }
 
+  void skip(int wordsToSkip) {
+    var newPosition = cursorPosition + wordsToSkip;
+    if(newPosition < contentLength && newPosition >= 0) {
+      developer.log("Skipping $wordsToSkip words, to position $newPosition.");
+      _bookReader.skip(wordsToSkip);
+    }
+  }
+
   String above() {
     return "${_content.content().getRange(max(cursorPosition - 100, 0), max(cursorPosition - 1, 0)).join(" ")}";
   }
