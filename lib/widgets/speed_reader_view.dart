@@ -33,7 +33,7 @@ class _SpeedReaderViewState extends State<SpeedReaderView> {
 
   Timer createTimer() {
     // TODO: this logic should (probably) not be in view layer
-    return Timer.periodic(new Duration(milliseconds: 100), (timer) async {
+    return Timer.periodic(new Duration(milliseconds: 110), (timer) async {
       setState(() {
         this._currentWord = this._bookReader.next();
       });

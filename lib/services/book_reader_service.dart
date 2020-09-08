@@ -35,19 +35,21 @@ class BookReaderService {
         .values
         .toList();
 
-    _content = Content(chapters
-        .map((chapter) => chapter.paragraphs.map((p) => p.text))
-        .join(" ")
-        .replaceAll("\n", " ")
-        .trim()
-        .split(" "));
+    _content = toContent(chapters);
     return this;
   }
 
+  static toContent(List<BookChapter> chapters) {
+    return Content(chapters
+        .expand((chapter) =>
+            chapter.paragraphs.expand((paragraph) => paragraph.words)).toList());
+  }
+
   List<Paragraph> toParagraphs(String htmlParagraphs) {
-    var parsed = xml.parse(htmlParagraphs);
-    return parsed.children
-        .map((node) => Paragraph(node.text.split(".")))
+    return xml
+        .parse(htmlParagraphs)
+        .children
+        .map((node) => Paragraph(node.text))
         .toList();
   }
 
