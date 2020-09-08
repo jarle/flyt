@@ -82,27 +82,26 @@ void main() {
     ]);
   });
 
-  test("should split sentences with special characters", () {
+  test("should handle quotations properly", () {
     var paragraph = Paragraph(
-        "Don't worry about the special signs; they should be handled properly.");
+        "\"It's a matter of splitting lines correctly into words\", he said.");
 
-    expect(paragraph.sentences, [
-      "Don't worry about the special signs;",
-      "they should be handled properly."
-    ]);
+    expect(paragraph.sentences,
+        ["\"It's a matter of splitting lines correctly into words\", he said."],
+        skip: true); //TODO
 
     expect(paragraph.words, [
-      "Don't",
-      "worry",
-      "about",
-      "the",
-      "special",
-      "signs;",
-      "they",
-      "should",
-      "be",
-      "handled",
-      "properly."
+      "\"It's",
+      "a",
+      "matter",
+      "of",
+      "splitting",
+      "lines",
+      "correctly",
+      "into",
+      "words\",",
+      "he",
+      "said."
     ]);
   });
 }

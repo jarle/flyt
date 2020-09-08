@@ -2,7 +2,7 @@ class Paragraph {
   final String _rawText;
   final Iterable<RegExpMatch> _sentenceMatches;
   final Iterable<RegExpMatch> _wordMatches;
-  static final RegExp _sentenceMatcher = new RegExp(r"([\w\s']+\W*)");
+  static final RegExp _sentenceMatcher = new RegExp(r"([\w\s',:]+\S+)");
   static final RegExp _wordMatcher = new RegExp(r"(\S+)");
 
   Paragraph(this._rawText): _sentenceMatches = _splitSentences(_rawText), _wordMatches = _splitWords(_rawText);
