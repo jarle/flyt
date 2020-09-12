@@ -56,6 +56,11 @@ class BookIndex {
 
   BookIndex(this.chapters) : length = calculateLength(chapters);
 
+  ChapterIndex currentChapter(GCursor cursor) {
+    return chapters.reversed
+        .firstWhere((chapter) => chapter.position.lte(cursor));
+  }
+
   static int calculateLength(List<ChapterIndex> chapters) {
     return chapters.map((e) => e.length).fold(0, sum);
   }
@@ -80,6 +85,11 @@ class ChapterIndex {
 
   static int calculateLength(List<ParagraphIndex> sentences) {
     return sentences.map((e) => e.length).fold(0, sum);
+  }
+
+  @override
+  String toString() {
+    return 'ChapterIndex{_title: $_title, position: $position, length: $length}';
   }
 }
 
@@ -126,5 +136,9 @@ class GCursor {
 
   GCursor plus(int n) {
     return GCursor(cursor + n);
+  }
+
+  lte(GCursor that) {
+    return this.cursor <= that.cursor;
   }
 }

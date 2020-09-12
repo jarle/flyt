@@ -12,7 +12,7 @@ class SpeedReaderApp extends StatelessWidget {
     return MaterialApp(
       title: 'FLYT',
       home: LibraryView(),
-      darkTheme: ThemeData.dark(),
+      darkTheme: ThemeData.dark().copyWith(accentColor: Colors.orangeAccent),
       themeMode: ThemeMode.dark,
     );
   }

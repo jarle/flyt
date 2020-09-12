@@ -133,6 +133,22 @@ class BookReaderService {
     developer.log("Moving cursor to position $newPosition");
     _bookReader.setPosition(newPosition);
   }
+
+  ChapterIndex currentChapter() {
+    return bookIndex.currentChapter(GCursor(cursorPosition));
+  }
+
+  double chapterProgress() {
+    developer.log("Calculating chapter progress for position $cursorPosition");
+    return 100 *
+        ((cursorPosition) /
+            (currentChapter().position.cursor + currentChapter().length));
+  }
+
+  double bookProgress() {
+    developer.log("Calculating book progress for position $cursorPosition");
+    return 100 * (cursorPosition / bookIndex.length);
+  }
 }
 
 class BookContentNotLoadedException implements Exception {
