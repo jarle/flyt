@@ -39,10 +39,10 @@ class BookReaderService {
     return this;
   }
 
-  static toContent(List<BookChapter> chapters) {
+  static Content toContent(List<BookChapter> chapters) {
     return Content(chapters
         .expand((chapter) =>
-            chapter.paragraphs.expand((paragraph) => paragraph.words)).toList());
+            chapter.paragraphs.expand((paragraph) => paragraph.tokenizedWords)).toList());
   }
 
   List<Paragraph> toParagraphs(String htmlParagraphs) {
@@ -84,7 +84,7 @@ class BookReaderService {
   }
 
   String below() {
-    return "${_content.content().getRange(cursorPosition, min(cursorPosition + 500, _content.length)).join(" ")}";
+    return "${_content.content().getRange(cursorPosition + 1 , min(cursorPosition + 200, _content.length)).join(" ")}";
   }
 
   Future updateCursorPosition() async {

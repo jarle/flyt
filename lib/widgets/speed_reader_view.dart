@@ -130,7 +130,8 @@ class _SpeedReaderViewState extends State<SpeedReaderView> {
     var focus = _currentWord.substring(midpoint, midpoint + 1);
     var after = _currentWord.substring(midpoint + 1);
 
-    var focusedTextStyle = Theme.of(context).textTheme.bodyText1.copyWith(fontSize: 32);
+    var focusedTextStyle =
+        Theme.of(context).textTheme.bodyText1.copyWith(fontSize: 32);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -150,15 +151,13 @@ class _SpeedReaderViewState extends State<SpeedReaderView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 RichText(
-                    text: TextSpan(
-                        style: focusedTextStyle,
-                        children: [
-                      TextSpan(
-                          text: focus,
-                          style: focusedTextStyle.copyWith(
-                              color: Colors.redAccent)),
-                      TextSpan(text: after)
-                    ])),
+                    text: TextSpan(style: focusedTextStyle, children: [
+                  TextSpan(
+                      text: focus,
+                      style:
+                          focusedTextStyle.copyWith(color: Colors.redAccent)),
+                  TextSpan(text: after)
+                ])),
               ],
             )),
       ],

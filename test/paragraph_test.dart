@@ -6,13 +6,13 @@ void main() {
     var paragraph =
         Paragraph("First sentence. Second sentence.. Third sentence...");
 
-    expect(paragraph.sentences, [
+    expect(paragraph.rawSentences, [
       "First sentence.",
       "Second sentence..",
       "Third sentence...",
     ]);
 
-    expect(paragraph.words, [
+    expect(paragraph.tokenizedWords, [
       "First",
       "sentence.",
       "Second",
@@ -26,13 +26,13 @@ void main() {
     var paragraph =
         Paragraph("First sentence.\nSecond sentence..\nThird sentence...\n");
 
-    expect(paragraph.sentences, [
+    expect(paragraph.rawSentences, [
       "First sentence.",
       "Second sentence..",
       "Third sentence...",
     ]);
 
-    expect(paragraph.words, [
+    expect(paragraph.tokenizedWords, [
       "First",
       "sentence.",
       "Second",
@@ -46,13 +46,13 @@ void main() {
     var paragraph =
         Paragraph("First sentence? Second sentence?? Third sentence???");
 
-    expect(paragraph.sentences, [
+    expect(paragraph.rawSentences, [
       "First sentence?",
       "Second sentence??",
       "Third sentence???",
     ]);
 
-    expect(paragraph.words, [
+    expect(paragraph.tokenizedWords, [
       "First",
       "sentence?",
       "Second",
@@ -66,13 +66,13 @@ void main() {
     var paragraph = Paragraph(
         "First sentence!!!?..\nSecond sentence?...!!!? Third sentence???");
 
-    expect(paragraph.sentences, [
+    expect(paragraph.rawSentences, [
       "First sentence!!!?..",
       "Second sentence?...!!!?",
       "Third sentence???",
     ]);
 
-    expect(paragraph.words, [
+    expect(paragraph.tokenizedWords, [
       "First",
       "sentence!!!?..",
       "Second",
@@ -84,24 +84,13 @@ void main() {
 
   test("should handle quotations properly", () {
     var paragraph = Paragraph(
-        "\"It's a matter of splitting lines correctly into words\", he said.");
+        "\"It's a matter of splitting lines correctly into sentences\", he said.");
 
-    expect(paragraph.sentences,
-        ["\"It's a matter of splitting lines correctly into words\", he said."],
-        skip: true); //TODO
-
-    expect(paragraph.words, [
-      "\"It's",
-      "a",
-      "matter",
-      "of",
-      "splitting",
-      "lines",
-      "correctly",
-      "into",
-      "words\",",
-      "he",
-      "said."
-    ]);
+    expect(
+        paragraph.rawSentences,
+        [
+          "\"It's a matter of splitting lines correctly into sentences\", he said."
+        ],
+        skip: true); //TODO: commas are interpreted as new sentences
   });
 }

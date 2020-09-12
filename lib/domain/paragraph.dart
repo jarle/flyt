@@ -1,21 +1,26 @@
+import 'package:flyt/domain/sentence.dart';
+
 class Paragraph {
-  final String _rawText;
-  final Iterable<RegExpMatch> _sentenceMatches;
-  final Iterable<RegExpMatch> _wordMatches;
+  final List<Sentence> _sentences;
   static final RegExp _sentenceMatcher = new RegExp(r"([\w\s',:]+\S+)");
-  static final RegExp _wordMatcher = new RegExp(r"(\S+)");
 
-  Paragraph(this._rawText): _sentenceMatches = _splitSentences(_rawText), _wordMatches = _splitWords(_rawText);
+  Paragraph(rawText) : _sentences = mapToSentences(rawText);
 
-  List<String> get words => _wordMatches.map((e) => _rawText.substring(e.start, e.end).trim()).toList();
+  static List<Sentence> mapToSentences(String _rawText) {
+    return _splitSentences(_rawText)
+        .map((e) => _rawText.substring(e.start, e.end).trim())
+        .toList()
+        .map((e) => Sentence(e))
+        .toList();
+  }
 
-  List<String> get sentences => _sentenceMatches.map((e) => _rawText.substring(e.start, e.end).trim()).toList();
+  List<String> get tokenizedWords =>
+      _sentences.expand((sentence) => sentence.words).toList();
+
+  List<String> get rawSentences =>
+      _sentences.map((sentence) => sentence.rawText).toList();
 
   static Iterable<RegExpMatch> _splitSentences(String rawText) {
     return _sentenceMatcher.allMatches(rawText);
-  }
-
-  static Iterable<RegExpMatch> _splitWords(String rawText) {
-    return _wordMatcher.allMatches(rawText);
   }
 }
