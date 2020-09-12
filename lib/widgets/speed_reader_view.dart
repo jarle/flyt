@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +27,7 @@ class _SpeedReaderViewState extends State<SpeedReaderView> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setEnabledSystemUIOverlays([]);
     setState(() {
       this._currentWord = _bookReader.current();
     });
@@ -81,6 +83,7 @@ class _SpeedReaderViewState extends State<SpeedReaderView> {
         child: Column(
           children: [
             Visibility(
+              replacement: Expanded(flex: 2, child: Container()),
               visible: !_isReading,
               child: Expanded(
                 flex: 2,
@@ -90,30 +93,76 @@ class _SpeedReaderViewState extends State<SpeedReaderView> {
                         overflow: TextOverflow.fade),
                     onTap: () {
                       skip(-100);
+                    },
+                    onDoubleTap: () {
+                      skip(-500);
                     }),
               ),
             ),
             Expanded(
-                child: Center(
-              child: Text(
-                _currentWord,
-                style: TextStyle(fontSize: 35),
-              ),
-            )),
+              child: currentWordWidget(),
+            ),
             Visibility(
+                replacement: Expanded(flex: 2, child: Container()),
                 visible: !_isReading,
                 child: Expanded(
                   flex: 2,
                   child: GestureDetector(
-                      child: Text(_bookReader.below(),
-                          overflow: TextOverflow.fade,
-                          textAlign: TextAlign.justify),
-                      onTap: () {
-                        skip(100);
-                      }),
+                    child: Text(_bookReader.below(),
+                        overflow: TextOverflow.fade,
+                        textAlign: TextAlign.justify),
+                    onTap: () {
+                      skip(100);
+                    },
+                    onDoubleTap: () {
+                      skip(500);
+                    },
+                  ),
                 ))
           ],
         ));
+  }
+
+  Widget currentWordWidget() {
+    var length = _currentWord.length;
+    var midpoint = max((length / 2).floor() - 1, 0);
+    var before = _currentWord.substring(0, midpoint);
+    var focus = _currentWord.substring(midpoint, midpoint + 1);
+    var after = _currentWord.substring(midpoint + 1);
+
+    var focusedTextStyle = Theme.of(context).textTheme.bodyText1.copyWith(fontSize: 32);
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+            flex: 3,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(before, style: focusedTextStyle),
+              ],
+            )),
+        Expanded(
+            flex: 4,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RichText(
+                    text: TextSpan(
+                        style: focusedTextStyle,
+                        children: [
+                      TextSpan(
+                          text: focus,
+                          style: focusedTextStyle.copyWith(
+                              color: Colors.redAccent)),
+                      TextSpan(text: after)
+                    ])),
+              ],
+            )),
+      ],
+    );
   }
 
   FloatingActionButton playingFloatingActionButton() {
@@ -157,13 +206,14 @@ class _SpeedReaderViewState extends State<SpeedReaderView> {
   void dispose() async {
     super.dispose();
     timer?.cancel();
+    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
     await pauseReading();
   }
 
   skip(int wordsToSkip) {
     this._bookReader.skip(wordsToSkip);
     setState(() {
-      this._currentWord = this._bookReader.next();
+      this._currentWord = this._bookReader.current();
     });
   }
 }
