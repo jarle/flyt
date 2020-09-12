@@ -96,7 +96,7 @@ class _LibraryViewState extends State<LibraryView> {
     ));
   }
 
-  _readBook(BookReaderService reader) async {
+  _readBook(BookReaderService reader) async { //TODO generaliser?
     reader
         .loadContent()
         .then((value) => Navigator.of(context).push(MaterialPageRoute<void>(

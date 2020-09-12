@@ -6,6 +6,8 @@ class Paragraph {
 
   Paragraph(rawText) : _sentences = mapToSentences(rawText);
 
+  List<Sentence> get sentences => _sentences;
+
   static List<Sentence> mapToSentences(String _rawText) {
     return _splitSentences(_rawText)
         .map((e) => _rawText.substring(e.start, e.end).trim())

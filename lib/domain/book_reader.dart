@@ -32,4 +32,8 @@ class BookReader {
   void skip(int wordsToSkip) {
     cursorPosition = cursorPosition + wordsToSkip; //TODO: test
   }
+
+  void setPosition(int newPosition) {
+    cursorPosition = newPosition;
+  }
 }

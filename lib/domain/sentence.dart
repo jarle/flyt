@@ -9,6 +9,8 @@ class Sentence {
 
   List<String> get words => _wordMatches.map((e) => _rawText.substring(e.start, e.end).trim()).toList();
 
+  get numberOfWordMatches => _wordMatches.length;
+
   static Iterable<RegExpMatch> _splitWords(String rawText) {
     return _wordMatcher.allMatches(rawText);
   }

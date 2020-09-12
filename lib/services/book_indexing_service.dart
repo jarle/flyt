@@ -1,12 +1,10 @@
+import 'dart:developer' as developer;
 import 'package:flyt/domain/book_chapter.dart';
 import 'package:flyt/domain/paragraph.dart';
+import 'package:flyt/domain/sentence.dart';
 
 class BookIndexingService {
-  final List<BookChapter> chapters;
-
-  BookIndexingService(this.chapters);
-
-  BookIndex indexBook() {
+  static BookIndex indexBook(List<BookChapter> chapters) {
     return chapters.fold(BookIndex([]), foldChapter);
   }
 
@@ -17,30 +15,37 @@ class BookIndexingService {
 
   static ChapterIndex indexChapter(
       BookIndex currentIndex, BookChapter newChapter) {
-    return newChapter.paragraphs
-        .fold(ChapterIndex(GCursor(currentIndex.length), []), foldParagraph);
+    developer.log(
+        "Indexing chapter ${newChapter.title} at index ${currentIndex.length}");
+    return newChapter.paragraphs.fold(
+        ChapterIndex(GCursor(currentIndex.length), [], newChapter.title),
+        foldParagraph);
   }
 
   static ChapterIndex foldParagraph(
       ChapterIndex currentChapter, Paragraph newParagraph) {
-    return ChapterIndex(currentChapter.position, [
-      ...currentChapter.paragraphs,
-      indexParagraph(currentChapter, newParagraph)
-    ]);
+    return ChapterIndex(
+        currentChapter.position,
+        [
+          ...currentChapter.paragraphs,
+          indexParagraph(currentChapter, newParagraph),
+        ],
+        currentChapter.title);
   }
 
   static ParagraphIndex indexParagraph(
       ChapterIndex currentChapter, Paragraph newParagraph) {
-    return newParagraph.rawSentences
-        .fold(ParagraphIndex(GCursor(currentChapter.length), []), foldSentence);
+    return newParagraph.sentences.fold(
+        ParagraphIndex(currentChapter.position.plus(currentChapter.length), []),
+        foldSentence);
   }
 
   static ParagraphIndex foldSentence(
-      ParagraphIndex currentParagraph, String rawSentence) {
+      ParagraphIndex currentParagraph, Sentence sentence) {
     return ParagraphIndex(currentParagraph.position, [
       ...currentParagraph.sentences,
-      SentenceIndex(GCursor(currentParagraph.length), rawSentence.length)
-      // TODO: actual tokenization
+      SentenceIndex(
+          currentParagraph.position.plus(currentParagraph.length), sentence)
     ]);
   }
 }
@@ -52,22 +57,29 @@ class BookIndex {
   BookIndex(this.chapters) : length = calculateLength(chapters);
 
   static int calculateLength(List<ChapterIndex> chapters) {
-    return chapters.map((e) => e.length).reduce(sum);
+    return chapters.map((e) => e.length).fold(0, sum);
+  }
+
+  static empty() {
+    return BookIndex([]);
   }
 }
 
 int sum(value, element) => value + element;
 
 class ChapterIndex {
+  final String _title;
   final GCursor position;
   final List<ParagraphIndex> paragraphs;
   final int length;
 
-  ChapterIndex(this.position, this.paragraphs)
+  ChapterIndex(this.position, this.paragraphs, this._title)
       : length = calculateLength(paragraphs);
 
+  get title => _title;
+
   static int calculateLength(List<ParagraphIndex> sentences) {
-    return sentences.map((e) => e.length).reduce(sum);
+    return sentences.map((e) => e.length).fold(0, sum);
   }
 }
 
@@ -80,7 +92,7 @@ class ParagraphIndex {
       : length = calculateLength(sentences);
 
   static int calculateLength(List<SentenceIndex> sentences) {
-    return sentences.map((e) => e.length).reduce(sum);
+    return sentences.map((e) => e.length).fold(0, sum);
   }
 }
 
@@ -88,7 +100,8 @@ class SentenceIndex {
   final GCursor position;
   final int length;
 
-  SentenceIndex(this.position, this.length);
+  SentenceIndex(this.position, Sentence sentence)
+      : length = sentence.numberOfWordMatches;
 }
 
 class GCursor {
@@ -105,4 +118,13 @@ class GCursor {
 
   @override
   int get hashCode => cursor.hashCode;
+
+  @override
+  String toString() {
+    return 'GCursor{cursor: $cursor}';
+  }
+
+  GCursor plus(int n) {
+    return GCursor(cursor + n);
+  }
 }
