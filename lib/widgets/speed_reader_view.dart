@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flyt/services/book_indexing_service.dart';
 import 'package:flyt/services/book_reader_service.dart';
 
 class SpeedReaderView extends StatefulWidget {
@@ -50,31 +51,17 @@ class _SpeedReaderViewState extends State<SpeedReaderView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_bookReader.book.title),
-        actions: [
-          PopupMenuButton<String>(
-            onSelected: handlePopupMenuClick,
-            itemBuilder: (BuildContext context) {
-              return {'Set position'}.map((String choice) {
-                return PopupMenuItem<String>(
-                  value: choice,
-                  child: Text(choice),
-                );
-              }).toList();
-            },
-          )
-        ],
+        title: titleText(),
       ),
       body: body(),
       floatingActionButton: actionButton,
     );
   }
 
-  void handlePopupMenuClick(String value) async {
-    switch (value) {
-      case 'Set position':
-        break;
-    }
+  Widget titleText() {
+    return Text(_bookReader.bookIndex
+        .currentChapter(GCursor(_bookReader.cursorPosition))
+        .title);
   }
 
   Widget body() {
@@ -130,7 +117,8 @@ class _SpeedReaderViewState extends State<SpeedReaderView> {
     var focus = _currentWord.substring(midpoint, midpoint + 1);
     var after = _currentWord.substring(midpoint + 1);
 
-    var focusedTextStyle = Theme.of(context).textTheme.bodyText1.copyWith(fontSize: 32);
+    var focusedTextStyle =
+        Theme.of(context).textTheme.bodyText1.copyWith(fontSize: 32);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -150,15 +138,13 @@ class _SpeedReaderViewState extends State<SpeedReaderView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 RichText(
-                    text: TextSpan(
-                        style: focusedTextStyle,
-                        children: [
-                      TextSpan(
-                          text: focus,
-                          style: focusedTextStyle.copyWith(
-                              color: Colors.redAccent)),
-                      TextSpan(text: after)
-                    ])),
+                    text: TextSpan(style: focusedTextStyle, children: [
+                  TextSpan(
+                      text: focus,
+                      style:
+                          focusedTextStyle.copyWith(color: Colors.deepOrange)),
+                  TextSpan(text: after)
+                ])),
               ],
             )),
       ],
@@ -167,10 +153,9 @@ class _SpeedReaderViewState extends State<SpeedReaderView> {
 
   FloatingActionButton playingFloatingActionButton() {
     return FloatingActionButton(
-      onPressed: _toggleReading,
-      tooltip: 'Start reading ${_bookReader.book.title}',
-      child: Icon(Icons.play_arrow),
-    );
+        onPressed: _toggleReading,
+        tooltip: 'Start reading ${_bookReader.book.title}',
+        child: Icon(Icons.play_arrow));
   }
 
   FloatingActionButton readingFloatingActionButton() {
@@ -178,6 +163,7 @@ class _SpeedReaderViewState extends State<SpeedReaderView> {
       onPressed: _toggleReading,
       tooltip: 'Pause reading ${_bookReader.book.title}',
       child: Icon(Icons.pause),
+      backgroundColor: Colors.blueGrey,
     );
   }
 

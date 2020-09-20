@@ -55,7 +55,8 @@ class _LibraryViewState extends State<LibraryView> {
         children: _library.bookReaders.map(_buildRow).toList(),
       );
 
-  ListTile _buildRow(BookReaderService reader) => ListTile(
+  Widget _buildRow(BookReaderService reader) => Card(
+          child: ListTile(
         title: Text("${reader.book.title}"),
         subtitle: Text(reader.book.author),
         trailing: RaisedButton(
@@ -67,7 +68,7 @@ class _LibraryViewState extends State<LibraryView> {
         onLongPress: () async => await _library.clearDatabase().then((value) {
           setState(() {});
         }),
-      );
+      ));
 
   Future<void> _addBookToLibrary() async {
     File _bookFile = await FilePicker.getFile(
@@ -97,6 +98,7 @@ class _LibraryViewState extends State<LibraryView> {
   }
 
   _readBook(BookReaderService reader) async {
+    //TODO generaliser?
     reader
         .loadContent()
         .then((value) => Navigator.of(context).push(MaterialPageRoute<void>(
