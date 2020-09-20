@@ -51,7 +51,7 @@ class _SpeedReaderViewState extends State<SpeedReaderView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: titleText(),
+        title: Text(""),
       ),
       body: body(),
       floatingActionButton: actionButton,
@@ -59,9 +59,7 @@ class _SpeedReaderViewState extends State<SpeedReaderView> {
   }
 
   Widget titleText() {
-    return Text(_bookReader.bookIndex
-        .currentChapter(GCursor(_bookReader.cursorPosition))
-        .title);
+    return Text("");
   }
 
   Widget body() {
@@ -112,7 +110,8 @@ class _SpeedReaderViewState extends State<SpeedReaderView> {
 
   Widget currentWordWidget() {
     var length = _currentWord.length;
-    var midpoint = max((length / 2).floor() - 1, 0);
+    var leftShift = _currentWord.length % 2 == 0 ? 1 : 0;
+    var midpoint = max((length / 2).floor() - leftShift, 0);
     var before = _currentWord.substring(0, midpoint);
     var focus = _currentWord.substring(midpoint, midpoint + 1);
     var after = _currentWord.substring(midpoint + 1);
