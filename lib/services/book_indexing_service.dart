@@ -9,44 +9,73 @@ class BookIndexingService {
   }
 
   static BookIndex foldChapter(BookIndex currentIndex, BookChapter newChapter) {
-    return BookIndex(
-        [...currentIndex.chapters, indexChapter(currentIndex, newChapter)]);
+    return BookIndex([
+      ...currentIndex.chapters,
+      indexChapter(
+        currentIndex,
+        newChapter,
+      ),
+    ]);
   }
 
   static ChapterIndex indexChapter(
-      BookIndex currentIndex, BookChapter newChapter) {
+    BookIndex currentIndex,
+    BookChapter newChapter,
+  ) {
     developer.log(
-        "Indexing chapter ${newChapter.title} at index ${currentIndex.length}");
+      "Indexing chapter ${newChapter.title} at index ${currentIndex.length}",
+    );
     return newChapter.paragraphs.fold(
-        ChapterIndex(GCursor(currentIndex.length), [], newChapter.title),
-        foldParagraph);
+      ChapterIndex(
+        GCursor(currentIndex.length),
+        [],
+        newChapter.title,
+      ),
+      foldParagraph,
+    );
   }
 
   static ChapterIndex foldParagraph(
-      ChapterIndex currentChapter, Paragraph newParagraph) {
+    ChapterIndex currentChapter,
+    Paragraph newParagraph,
+  ) {
     return ChapterIndex(
-        currentChapter.position,
-        [
-          ...currentChapter.paragraphs,
-          indexParagraph(currentChapter, newParagraph),
-        ],
-        currentChapter.title);
+      currentChapter.position,
+      [
+        ...currentChapter.paragraphs,
+        indexParagraph(currentChapter, newParagraph),
+      ],
+      currentChapter.title,
+    );
   }
 
   static ParagraphIndex indexParagraph(
-      ChapterIndex currentChapter, Paragraph newParagraph) {
+    ChapterIndex currentChapter,
+    Paragraph newParagraph,
+  ) {
     return newParagraph.sentences.fold(
-        ParagraphIndex(currentChapter.position.plus(currentChapter.length), []),
-        foldSentence);
+      ParagraphIndex(
+        currentChapter.position.plus(currentChapter.length),
+        [],
+      ),
+      foldSentence,
+    );
   }
 
   static ParagraphIndex foldSentence(
-      ParagraphIndex currentParagraph, Sentence sentence) {
-    return ParagraphIndex(currentParagraph.position, [
-      ...currentParagraph.sentences,
-      SentenceIndex(
-          currentParagraph.position.plus(currentParagraph.length), sentence)
-    ]);
+    ParagraphIndex currentParagraph,
+    Sentence sentence,
+  ) {
+    return ParagraphIndex(
+      currentParagraph.position,
+      [
+        ...currentParagraph.sentences,
+        SentenceIndex(
+          currentParagraph.position.plus(currentParagraph.length),
+          sentence,
+        )
+      ],
+    );
   }
 }
 
@@ -57,8 +86,9 @@ class BookIndex {
   BookIndex(this.chapters) : length = calculateLength(chapters);
 
   ChapterIndex currentChapter(GCursor cursor) {
-    return chapters.reversed
-        .firstWhere((chapter) => chapter.position.lte(cursor));
+    return chapters.reversed.firstWhere(
+      (chapter) => chapter.position.lte(cursor),
+    );
   }
 
   static int calculateLength(List<ChapterIndex> chapters) {
@@ -78,8 +108,11 @@ class ChapterIndex {
   final List<ParagraphIndex> paragraphs;
   final int length;
 
-  ChapterIndex(this.position, this.paragraphs, this._title)
-      : length = calculateLength(paragraphs);
+  ChapterIndex(
+    this.position,
+    this.paragraphs,
+    this._title,
+  ) : length = calculateLength(paragraphs);
 
   get title => _title;
 
@@ -98,8 +131,10 @@ class ParagraphIndex {
   final List<SentenceIndex> sentences;
   final int length;
 
-  ParagraphIndex(this.position, this.sentences)
-      : length = calculateLength(sentences);
+  ParagraphIndex(
+    this.position,
+    this.sentences,
+  ) : length = calculateLength(sentences);
 
   static int calculateLength(List<SentenceIndex> sentences) {
     return sentences.map((e) => e.length).fold(0, sum);
@@ -110,8 +145,10 @@ class SentenceIndex {
   final GCursor position;
   final int length;
 
-  SentenceIndex(this.position, Sentence sentence)
-      : length = sentence.numberOfWordMatches;
+  SentenceIndex(
+    this.position,
+    final Sentence sentence,
+  ) : length = sentence.numberOfWordMatches;
 }
 
 class GCursor {

@@ -16,22 +16,28 @@ class BookLibraryService {
 //    await clearDatabase();
     final List<BookReaderEntity> bookReaderEntries =
         await BookReaderEntity().select().toList(preload: true);
+
     developer.log(
-        "Initializing ${bookReaderEntries.length} book readers from database");
+      "Initializing ${bookReaderEntries.length} book readers from database",
+    );
     return bookReaderEntries.map(_toBookReader).forEach(_addBookReader);
   }
 
   Future clearDatabase() async {
     developer.log("Cleaning database");
+
     await BookReaderEntity().select().delete(true);
     await BookEntity().select().delete(true);
     await BookLibraryEntity().select().delete(true);
     _library.clear();
+
     developer.log("Done cleaning database");
   }
 
   Future<void> _addBookReader(BookReader reader) async {
-    _library.addBookReader(BookReaderService(reader));
+    _library.addBookReader(
+      BookReaderService(reader),
+    );
   }
 
   Future<void> addNewBook(Book book) async {
@@ -39,15 +45,21 @@ class BookLibraryService {
     final Identifier identifier = Identifier.generate();
     final BookReader reader = BookReader(book, identifier);
     final bookReaderEntity = new BookReaderEntity(
-        id: identifier.id, cursorPosition: reader.cursorPosition);
+      id: identifier.id,
+      cursorPosition: reader.cursorPosition,
+    );
 
     bookReaderEntity.bookentity = BookEntity(
-        author: book.author, title: book.title, path: book.file.path);
+      author: book.author,
+      title: book.title,
+      path: book.file.path,
+    );
 
     await bookReaderEntity.save();
 
     developer.log(
-        "Successfully added reader for ${reader.book} to database with ID ${bookReaderEntity.id}");
+      "Successfully added reader for ${reader.book} to database with ID ${bookReaderEntity.id}",
+    );
     _addBookReader(reader);
     final entities = await BookReaderEntity().select().toList();
     developer.log("Database now contains ${entities.length} book readers");
@@ -59,11 +71,18 @@ class BookLibraryService {
 
   BookReader _toBookReader(BookReaderEntity readerEntity) {
     developer.log(
-        "Initializing BookReader from Entity: ${readerEntity.id} with cursorPosition ${readerEntity.cursorPosition}");
+      "Initializing BookReader from Entity: ${readerEntity.id} with cursorPosition ${readerEntity.cursorPosition}",
+    );
+
     final BookEntity bookEntity = readerEntity.bookentity;
     final BookReader bookReader = BookReader(
-        Book(new File(bookEntity.path), bookEntity.title, bookEntity.author),
-        Identifier(readerEntity.id));
+      Book(
+        new File(bookEntity.path),
+        bookEntity.title,
+        bookEntity.author,
+      ),
+      Identifier(readerEntity.id),
+    );
     bookReader.cursorPosition = readerEntity.cursorPosition;
     developer.log("Instantiated $bookReader");
     return bookReader;

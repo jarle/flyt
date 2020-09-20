@@ -5,6 +5,10 @@ void main() {
   test('should fail if content is being accessed without having been loaded',
       () {
     expect(
-        () => Content().content(), throwsA(isA<ContentNotLoadedException>()));
+      () => Content().content(),
+      throwsA(
+        isA<ContentNotLoadedException>(),
+      ),
+    );
   });
 }

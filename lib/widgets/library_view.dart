@@ -5,8 +5,8 @@ import 'package:epub/epub.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flyt/domain/book.dart';
-import 'package:flyt/services/book_reader_service.dart';
 import 'package:flyt/model/model.dart';
+import 'package:flyt/services/book_reader_service.dart';
 import 'package:flyt/services/library_service.dart';
 import 'package:flyt/widgets/speed_reader_view.dart';
 
@@ -24,18 +24,27 @@ class _LibraryViewState extends State<LibraryView> {
   void initState() {
     super.initState();
     developer.log("Initializing database");
-    BookLibraryModel().initializeDB().then((bool success) {
-      if (success) {
-        developer.log("Initializing library state");
-        _library.initState().then((value) {
-          setState(() {});
-          developer.log(
-              "Library state successfully initialized with ${_library.bookReaders.length} book readers");
-        });
-      } else {
-        throw "Unable to initialize database";
-      }
-    });
+    BookLibraryModel().initializeDB().then(
+      (bool success) {
+        if (success) {
+          initializeApplication();
+        } else {
+          throw "Unable to initialize database";
+        }
+      },
+    );
+  }
+
+  void initializeApplication() {
+    developer.log("Initializing library state");
+    _library.initState().then(
+      (value) {
+        setState(() {});
+        developer.log(
+          "Library state successfully initialized with ${_library.bookReaders.length} book readers",
+        );
+      },
+    );
   }
 
   @override
@@ -52,27 +61,38 @@ class _LibraryViewState extends State<LibraryView> {
   }
 
   ListView libraryWidget() => ListView(
-        children: _library.bookReaders.map(_buildRow).toList(),
+        children: _library.bookReaders
+            .map(
+              _buildRow,
+            )
+            .toList(),
       );
 
-  Widget _buildRow(BookReaderService reader) => Card(
-          child: ListTile(
-        title: Text("${reader.book.title}"),
-        subtitle: Text(reader.book.author),
-        trailing: RaisedButton(
-          onPressed: () => _readBook(reader),
-          shape: StadiumBorder(),
-          child: Icon(Icons.play_arrow),
+  Widget _buildRow(final BookReaderService reader) => Card(
+        child: ListTile(
+          title: Text("${reader.book.title}"),
+          subtitle: Text(reader.book.author),
+          trailing: RaisedButton(
+            onPressed: () => _readBook(reader),
+            shape: StadiumBorder(),
+            child: Icon(Icons.play_arrow),
+          ),
+          onTap: () => _openBookDetails(reader),
+          onLongPress: () async => await _library.clearDatabase().then(
+            (value) {
+              setState(() {});
+            },
+          ),
         ),
-        onTap: () => _openBookDetails(reader),
-        onLongPress: () async => await _library.clearDatabase().then((value) {
-          setState(() {});
-        }),
-      ));
+      );
 
   Future<void> _addBookToLibrary() async {
     File _bookFile = await FilePicker.getFile(
-        type: FileType.custom, allowedExtensions: ["epub"]);
+      type: FileType.custom,
+      allowedExtensions: [
+        "epub",
+      ],
+    );
 
     if (_bookFile == null) {
       return;
@@ -81,30 +101,39 @@ class _LibraryViewState extends State<LibraryView> {
     final List<int> bytes = await _bookFile.readAsBytes();
     final EpubBook _epubBook = await EpubReader.readBook(bytes);
 
-    return _library
-        .addNewBook(Book(
-            _bookFile, _epubBook.Title.toString(), _epubBook.Author.toString()))
-        .then((value) {
-      setState(() {});
-    });
+    var newBook = Book(
+      _bookFile,
+      _epubBook.Title.toString(),
+      _epubBook.Author.toString(),
+    );
+
+    return _library.addNewBook(newBook).then(
+      (value) {
+        setState(() {});
+      },
+    );
   }
 
   _openBookDetails(BookReaderService reader) async {
-    Navigator.of(context).push(MaterialPageRoute<void>(
-      builder: (BuildContext context) {
-        return BookDetailsView(reader);
-      },
-    ));
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) {
+          return BookDetailsView(reader);
+        },
+      ),
+    );
   }
 
   _readBook(BookReaderService reader) async {
     //TODO generaliser?
-    reader
-        .loadContent()
-        .then((value) => Navigator.of(context).push(MaterialPageRoute<void>(
+    reader.loadContent().then(
+          (value) => Navigator.of(context).push(
+            MaterialPageRoute<void>(
               builder: (BuildContext context) {
                 return SpeedReaderView(reader);
               },
-            )));
+            ),
+          ),
+        );
   }
 }

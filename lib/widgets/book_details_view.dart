@@ -42,30 +42,33 @@ class _BookDetailsViewState extends State<BookDetailsView> {
     return Column(
       children: [
         Expanded(
-            child: ListView(
-          padding: EdgeInsets.all(8),
-          children: [
-            Container(
-              margin: EdgeInsets.all(8),
-              child: Text(
-                _reader.book.title,
-                style: Theme.of(context).textTheme.headline4,
-                textAlign: TextAlign.center,
+          child: ListView(
+            padding: EdgeInsets.all(8),
+            children: [
+              Container(
+                margin: EdgeInsets.all(8),
+                child: Text(
+                  _reader.book.title,
+                  style: Theme.of(context).textTheme.headline4,
+                  textAlign: TextAlign.center,
+                ),
               ),
-            ),
-            Container(
-              margin: EdgeInsets.only(bottom: 8),
-              child: Center(
-                child: Text("${_reader.bookProgress().toStringAsFixed(0)}%",
+              Container(
+                margin: EdgeInsets.only(bottom: 8),
+                child: Center(
+                  child: Text(
+                    "${_reader.bookProgress().toStringAsFixed(0)}%",
                     style: Theme.of(context)
                         .textTheme
                         .subtitle1
-                        .copyWith(color: Theme.of(context).accentColor)),
+                        .copyWith(color: Theme.of(context).accentColor),
+                  ),
+                ),
               ),
-            ),
-            ..._reader.bookIndex.chapters.map(toListTile).toList()
-          ],
-        ))
+              ..._reader.bookIndex.chapters.map(toListTile).toList()
+            ],
+          ),
+        )
       ],
     );
   }
@@ -76,33 +79,44 @@ class _BookDetailsViewState extends State<BookDetailsView> {
         ? " (${_reader.chapterProgress().toStringAsFixed(0)}%)"
         : "";
     var text = "${chapter.title}$postfix";
+
     return Card(
       child: ListTile(
-        title: Text(text,
-            style: Theme.of(context).textTheme.bodyText1.copyWith(
+        title: Text(
+          text,
+          style: Theme.of(
+            context,
+          ).textTheme.bodyText1.copyWith(
                 color: isCurrentChapter
                     ? Theme.of(context).accentColor
-                    : Theme.of(context).textTheme.bodyText1.color)),
+                    : Theme.of(context).textTheme.bodyText1.color,
+              ),
+        ),
         onTap: () => launchChapter(chapter.position),
       ),
     );
   }
 
   launchChapter(GCursor position) {
-    if (_reader.currentChapter() !=
-        _reader.bookIndex.currentChapter(position)) {
+    final bool isNewChapter = (_reader.currentChapter() !=
+        _reader.bookIndex.currentChapter(position));
+
+    if (isNewChapter) {
       _reader.moveCursorTo(position.cursor);
     }
+
     _readBook(_reader);
   }
 
   _readBook(BookReaderService reader) async {
-    reader
-        .loadContent()
-        .then((value) => Navigator.of(context).push(MaterialPageRoute<void>(
+    reader.loadContent().then(
+          (value) => Navigator.of(context).push(
+            MaterialPageRoute<void>(
               builder: (BuildContext context) {
                 return SpeedReaderView(reader);
               },
-            )));
+            ),
+          ),
+        );
   }
 }

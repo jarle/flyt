@@ -35,23 +35,34 @@ class BookReaderService {
   Future<List<BookChapter>> _readChaptersFromDisk() async {
     final List<int> bytes = await book.file.readAsBytes();
     final EpubBook epubBook = await EpubReader.readBook(bytes);
-    final List<BookChapter> chapters = epubBook.Chapters.asMap()
-        .map((index, chapter) => MapEntry(
+
+    return epubBook.Chapters.asMap()
+        .map(
+          (index, chapter) => MapEntry(
             index,
             BookChapter(
-                chapter.Title, this.toParagraphs(chapter.HtmlContent), index)))
+              chapter.Title,
+              this.toParagraphs(chapter.HtmlContent),
+              index,
+            ),
+          ),
+        )
         .values
         .toList();
-    return chapters;
   }
 
   BookIndex _indexBook(chapters) => BookIndexingService.indexBook(chapters);
 
   static Content toContent(List<BookChapter> chapters) {
-    final Content result = Content(chapters
-        .expand((chapter) =>
-            chapter.paragraphs.expand((paragraph) => paragraph.tokenizedWords))
-        .toList());
+    final Content result = Content(
+      chapters
+          .expand(
+            (chapter) => chapter.paragraphs.expand(
+              (paragraph) => paragraph.tokenizedWords,
+            ),
+          )
+          .toList(),
+    );
 
     developer.log("Loaded ${result.length} tokenized words");
     return result;
@@ -61,23 +72,25 @@ class BookReaderService {
     return xml
         .parse(htmlParagraphs)
         .children
-        .map((node) => Paragraph(node.text))
+        .map(
+          (node) => Paragraph(node.text),
+        )
         .toList();
   }
 
   String next() {
+    var boudedNext = _bookReader.nextPosition() % (_content.length - 1);
     try {
-      return _content.content()[_bookReader.nextPosition() %
-          (_content.length - 1)]; //TODO: no wraparound
+      return _content.content()[boudedNext]; //TODO: no wraparound
     } on ContentNotLoadedException {
       throw BookContentNotLoadedException(book);
     }
   }
 
   String current() {
+    var boundedCurrent = _bookReader.cursorPosition % (_content.length - 1);
     try {
-      return _content.content()[_bookReader.cursorPosition %
-          (_content.length - 1)]; //TODO: no wraparound
+      return _content.content()[boundedCurrent]; //TODO: no wraparound
     } on ContentNotLoadedException {
       throw BookContentNotLoadedException(book);
     }
@@ -92,16 +105,33 @@ class BookReaderService {
   }
 
   String above() {
-    return "${_content.content().getRange(max(cursorPosition - 100, 0), max(cursorPosition - 1, 0)).join(" ")}";
+    return "${_content.content().getRange(
+          max(
+            cursorPosition - 100,
+            0,
+          ),
+          max(
+            cursorPosition - 1,
+            0,
+          ),
+        ).join(" ")}";
   }
 
   String below() {
-    return "${_content.content().getRange(cursorPosition + 1, min(cursorPosition + 200, _content.length)).join(" ")}";
+    return "${_content.content().getRange(
+          cursorPosition + 1,
+          min(
+            cursorPosition + 200,
+            _content.length,
+          ),
+        ).join(" ")}";
   }
 
   Future updateCursorPosition() async {
     developer.log(
-        "Updating cursorPosition (at ${_bookReader.cursorPosition}) for ${_bookReader.id}");
+      "Updating cursorPosition (at ${_bookReader.cursorPosition}) for ${_bookReader.id}",
+    );
+
     final BoolResult result = await BookReaderEntity()
         .select()
         .id
@@ -116,7 +146,10 @@ class BookReaderService {
         .id
         .equals(_bookReader.id.id)
         .toList(preload: true);
-    list.forEach((element) => developer.log("${element.cursorPosition}"));
+
+    list.forEach(
+      (element) => developer.log("${element.cursorPosition}"),
+    );
   }
 
   void forward() {
@@ -140,9 +173,7 @@ class BookReaderService {
 
   double chapterProgress() {
     developer.log("Calculating chapter progress for position $cursorPosition");
-    return 100 *
-        ((cursorPosition) /
-            (currentChapter().position.cursor + currentChapter().length));
+    return 100 * cursorPosition / currentChapter().length;
   }
 
   double bookProgress() {

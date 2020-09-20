@@ -7,13 +7,25 @@ import 'package:flyt/util/UUID.dart';
 void main() {
   final Book testBook = Book(null, "test title", "test author");
 
-  test('should fail if book has not yet been loaded', () {
-    final BookReaderService br = BookReaderService(BookReader(testBook, Identifier.generate()));
-    expect(
-        () => br.next(),
-        throwsA(isA<BookContentNotLoadedException>().having(
-            (source) => source.toString(),
-            'message',
-            'Content of "$testBook" was never initialized')));
-  });
+  test(
+    'should fail if book has not yet been loaded',
+    () {
+      final BookReaderService brs = BookReaderService(
+        BookReader(
+          testBook,
+          Identifier.generate(),
+        ),
+      );
+
+      expect(
+        () => brs.next(),
+        throwsA(
+          isA<BookContentNotLoadedException>().having(
+              (source) => source.toString(),
+              'message',
+              'Content of "$testBook" was never initialized'),
+        ),
+      );
+    },
+  );
 }

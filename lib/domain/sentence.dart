@@ -5,9 +5,13 @@ class Sentence {
 
   String get rawText => _rawText;
 
-  Sentence(this._rawText): _wordMatches = _splitWords(_rawText);
+  Sentence(this._rawText) : _wordMatches = _splitWords(_rawText);
 
-  List<String> get words => _wordMatches.map((e) => _rawText.substring(e.start, e.end).trim()).toList();
+  List<String> get words => _wordMatches
+      .map(
+        (wordMatch) => _rawText.substring(wordMatch.start, wordMatch.end).trim(),
+      )
+      .toList();
 
   get numberOfWordMatches => _wordMatches.length;
 
